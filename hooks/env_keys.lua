@@ -5,30 +5,12 @@
 --- @field ctx.path string SDK installation directory
 function PLUGIN:EnvKeys(ctx)
     --- this variable is same as ctx.sdkInfo['plugin-name'].path
-    local mainPath = ctx.path
-    local runtimeVersion = ctx.runtimeVersion
-    local mainSdkInfo = ctx.main
-    local mpath = mainSdkInfo.path
-    local mversion = mainSdkInfo.version
-    local mname = mainSdkInfo.name
-    local sdkInfo = ctx.sdkInfo['sdk-name']
-    local path = sdkInfo.path
-    local version = sdkInfo.version
-    local name = sdkInfo.name
+    local version_path = ctx.path
     return {
         {
-            key = "JAVA_HOME",
-            value = mainPath
-        },
-        {
             key = "PATH",
-            value = mainPath .. "/bin"
+            value = version_path
         },
-        {
-            key = "PATH",
-            value = mainPath .. "/bin2"
-        },
-
     }
 
 end
