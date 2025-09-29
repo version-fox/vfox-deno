@@ -12,15 +12,11 @@ function PLUGIN:PreInstall(ctx)
         return result(lists[1].version)
     end
 
+    local prefix = version .. "."
     for k, v in ipairs(lists) do
         if v.version == version then
             return result(v.version)
-        end
-    end
-
-    local prefix = version .. "."
-    for k, v in ipairs(lists) do
-        if string.sub(v.version, 1, #prefix) == prefix then
+        elseif string.sub(v.version, 1, #prefix) == prefix then
             return result(v.version)
         end
     end
