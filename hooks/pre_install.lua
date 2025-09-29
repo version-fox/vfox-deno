@@ -6,15 +6,29 @@ local util = require("util")
 --- @return table Version information
 function PLUGIN:PreInstall(ctx)
     local version = ctx.version
+    local lists = self:Available({})
 
-    local type = util:getOsTypeAndArch()
     if version == "latest" then
-        local lists = self:Available({})
-        version = lists[1].version
+        return result(lists[1].version)
     end
+
+    local prefix = version .. "."
+    for k, v in ipairs(lists) do
+        if v.version == version then
+            return result(v.version)
+        elseif string.sub(v.version, 1, #prefix) == prefix then
+            return result(v.version)
+        end
+    end
+
+    error("Could not resolve version: " .. tostring(version))
+end
+
+function result(version)
+    local type = util:getOsTypeAndArch()
     local filename = "deno-" .. type.archType .. "-" .. type.osType .. ".zip"
     return {
         version = version,
-        url = util.DownloadURL:format(version, filename),
+        url = util.DownloadURL:format(version, filename)
     }
 end
