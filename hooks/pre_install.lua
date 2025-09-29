@@ -21,6 +21,7 @@ function PLUGIN:PreInstall(ctx)
         end
     end
 
+    error("Could not resolve version: " .. tostring(version))
 end
 
 function result(version)
