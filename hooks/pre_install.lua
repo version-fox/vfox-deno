@@ -7,6 +7,9 @@ local util = require("util")
 function PLUGIN:PreInstall(ctx)
     local version = ctx.version
     local lists = self:Available({})
+    if #lists == 0 then
+        error("No Deno versions available")
+    end
 
     if version == "latest" then
         return result(lists[1].version)
@@ -29,6 +32,6 @@ function result(version)
     local filename = "deno-" .. type.archType .. "-" .. type.osType .. ".zip"
     return {
         version = version,
-        url = util.DownloadURL:format(version, filename)
+        url = util.DownloadURL:format(version, filename),
     }
 end
