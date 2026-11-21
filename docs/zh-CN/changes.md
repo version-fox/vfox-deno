@@ -8,7 +8,6 @@
 
 - `vfox link --detect deno` 会采用机器上已有的 Deno，而不是再下载一份：检查的位置包括 Deno 安装脚本的目录、Cargo、Homebrew、asdf、mise、Windows 上的 Scoop 和 winget、Program Files，以及 `PATH` 中的每个目录。它需要 vfox 1.1.0 或更高版本。参见 [link.md](link.md)。
 - 每次下载都会与 Deno 在其旁边发布的 SHA-256 摘要进行核对，vfox 会打印它所核对的摘要。没有校验和文件的发布版本（例如 Deno 1.46.3）会安装，并附带一条说明，表示无法校验。如果校验和文件无法获取，或没有注明摘要，安装则会停止，因此不会有任何内容在未经校验的情况下被安装。
-- 现在接受 `vfox install deno@v2.7.0`，其中的 `v` 与发布标签中的相同。
 - `vfox info deno` 会显示指向本 README 的链接，其中说明了用法。
 - 文档同时提供英文和中文版本，并包括插件各部分以及端到端测试套件的指南。
 
