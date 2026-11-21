@@ -1,0 +1,50 @@
+# Copyright 2026 Han Li and contributors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# License header check (Apache SkyWalking Eyes). Go, Lua, YAML, TOML, ignore
+# files and similar text formats must carry the header; the header is written
+# by hand, as `header fix` can only place it for the comment styles it knows.
+# CI runs the check via .github/workflows/license.yml; the same check runs
+# locally through the Docker image (see docs/development.md).
+header:
+  license:
+    spdx-id: Apache-2.0
+    copyright-owner: Han Li and contributors
+    content: |
+      Copyright 2026 Han Li and contributors
+
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+      You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+
+  paths-ignore:
+    # Documents and JSON have no comment syntax to carry the header.
+    - '**/*.md'
+    - '**/*.json'
+    # go.sum cannot take a header at all: the go tool parses every non-empty line as a hash record.
+    - '**/go.sum'
+    - '.tool-versions'
+    - 'LICENSE'
+    # A linked worktree keeps .git as a file; a clone keeps a directory, which the check skips.
+    - '.git'
+
+  comment: on-failure
