@@ -16,6 +16,7 @@ package e2e
 
 import (
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -152,6 +153,9 @@ func (h *harness) installPinned(t *testing.T) {
 	if problem := checksumProblem(install.Output); problem != "" {
 		t.Errorf("vfox install deno@%s: %s", denoPinned, problem)
 	}
+	// Where vfox put the release. It is logged, not checked, so a failing step
+	// shows the layout of the install it ran against.
+	logTree(t, h.vfoxHome)
 	spec := "deno@" + denoPinned
 	h.checkDenoVersion(t, spec)
 	if p, ok := h.denoExecPath(t, spec, h.vfoxHome); ok {
@@ -255,10 +259,12 @@ func (h *harness) cleanup(t *testing.T) {
 
 // execDeno runs a `deno eval` of expr through vfox exec for spec, such as
 // deno@2.7.0. A missing version makes exec install it first, which downloads,
-// so exec is retried like an install.
+// so exec is retried like an install. The command is named by its file name:
+// on Windows, vfox 1.1.0's exec finds a command on the SDK's PATH only when the
+// name carries its extension, so `deno` alone is not found there.
 func (h *harness) execDeno(t *testing.T, spec, expr string) commandResult {
 	t.Helper()
-	return h.vfoxRetry(t, "exec", spec, "--", "deno", "eval", expr)
+	return h.vfoxRetry(t, "exec", spec, "--", denoBinaryName(), "eval", expr)
 }
 
 // checkDenoVersion runs `deno eval` through vfox exec for spec and checks the
@@ -294,12 +300,41 @@ func denoVersionMatches(printed, want string) bool {
 	return printed == want || strings.HasPrefix(printed, want+"+")
 }
 
-// denoBinaryName is the Deno executable's file name on this platform.
+// denoBinaryName is the Deno executable's file name on this platform: deno.exe
+// on Windows, deno elsewhere.
 func denoBinaryName() string {
 	if runtime.GOOS == "windows" {
 		return "deno.exe"
 	}
 	return "deno"
+}
+
+// logTree logs every entry under dir, relative to it, with a trailing slash for
+// folders. It shows where vfox put an install, for a step that later cannot
+// find the files it expects.
+func logTree(t *testing.T, dir string) {
+	t.Helper()
+	var entries []string
+	err := filepath.WalkDir(dir, func(p string, d fs.DirEntry, err error) error {
+		if err != nil {
+			entries = append(entries, "unreadable: "+p+": "+err.Error())
+			return nil
+		}
+		rel, err := filepath.Rel(dir, p)
+		if err != nil || rel == "." {
+			return nil
+		}
+		name := filepath.ToSlash(rel)
+		if d.IsDir() {
+			name += "/"
+		}
+		entries = append(entries, name)
+		return nil
+	})
+	if err != nil {
+		t.Logf("list %s: %v", dir, err)
+	}
+	t.Logf("entries under %s:\n%s", dir, strings.Join(entries, "\n"))
 }
 
 // copyKeepMode copies the file src to dst, creating dst's directory, and gives

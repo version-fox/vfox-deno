@@ -37,7 +37,7 @@
 2. **信息。** `vfox info deno` 会打印一个指向本 README 的链接。
 3. **搜索。** `vfox search deno` 列出 2.7.0。
 4. **最新的 2.x。** `vfox install deno@2` 安装最新的 2.x 发布版本。它的输出必须显示 `Verifying checksum` 并附带十六进制摘要，且不能出现 `Checksum is not provided`。然后 `vfox current deno` 必须报告该发布版本。vfox 只在某个版本正在使用时才报告当前版本，而该套件既不运行 `vfox use`，也不做 shell 激活。因此，该发布版本会写在工作目录的一个临时 `.vfox.toml` 中，该步骤随后会将其删除。
-5. **固定的发布版本。** `vfox install deno@2.7.0` 安装 2.7.0，并验证校验和。通过 `vfox exec` 运行的 Deno 必须报告 2.7.0，允许 `+` 之后带构建元数据。它的可执行文件必须位于 `VFOX_HOME` 之内。
+5. **固定的发布版本。** `vfox install deno@2.7.0` 安装 2.7.0，并验证校验和。通过 `vfox exec` 运行的 Deno 必须报告 2.7.0，允许 `+` 之后带构建元数据。它的可执行文件必须位于 `VFOX_HOME` 之内。在 Windows 上，命令是 `deno.exe`，因为 vfox 1.1.0 的 `exec` 在那里只按完整的文件名查找命令。
 6. **前导 v。** `vfox install deno@v2.7.0` 以 0 退出，并且精确地指明 2.7.0，无论它是安装该发布版本还是发现它已安装。
 7. **未知版本。** `vfox install deno@9.9.9` 以 `Could not resolve version` 失败。这个失败是预期的结果，因此该步骤不会重试。
 8. **检测与链接。** 2.7.0 的二进制文件被复制到 `$DENO_INSTALL/bin`，并卸载 vfox 自己的副本。`vfox link --detect -y deno` 必须找到该副本并将其链接为 2.7.0，且输出中不能提及 `VFOX_HOME`。随后 `vfox list deno` 必须显示该链接，`vfox exec` 必须运行该副本，而 `vfox uninstall` 只能删除链接，并保留二进制文件。参见 [link.md](link.md)。
