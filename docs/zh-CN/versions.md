@@ -25,6 +25,8 @@ vfox search deno
 
 列表来自 Deno 的 `Releases.md` 中的发布版本标题，从新到旧排列。Deno 完成某个发布版本之后，该版本才会出现在列表中，因此刚刚打上标签的发布版本可能需要一点时间才会出现。
 
+列表只包含在你的平台上有下载的发布版本。Deno 为各平台提供压缩包的起始发布版本各不相同，而 Deno 从未为 1.10.0 发布压缩包。因此，列表在 x86_64 的 Linux、macOS 和 Windows 上从 0.36.0 开始，在 arm64 的 macOS 上从 1.6.0 开始，在 arm64 的 Linux 上从 1.40.3 开始，在 arm64 的 Windows 上从 2.6.8 开始。对于没有下载的发布版本，`vfox install` 会说明原因，例如 `Deno 0.35.0 has no download for linux/amd64: downloads for this platform start with 0.36.0`。参见 [platforms.md](platforms.md)。
+
 ## 安装与使用
 
 ```bash

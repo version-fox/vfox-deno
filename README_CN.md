@@ -19,7 +19,7 @@ deno --version
 
 `deno --version` 显示当前选中的 Deno。要让 `deno` 位于 `PATH` 中，必须把 vfox 接入你的 shell，参见其[快速入门](https://vfox.dev/guides/quick-start.html)。
 
-`vfox search deno` 会列出稳定发布版本，最新的排在最前面。
+`vfox search deno` 会列出在你的平台上有下载的稳定发布版本，最新的排在最前面。
 
 ## 版本
 

@@ -92,4 +92,59 @@ fails("Failed to fetch Deno releases: HTTP 503")
 state.response = { status_code = 200, body = "# Releases\nupstream format changed\n" }
 fails("No Deno versions found")
 
+-- Each platform lists the releases from its first download on, and 1.10.0 has no
+-- download on any platform, so it is left out everywhere. The headings are Deno's
+-- own, with a release either side of each first download.
+state.requestError = nil
+state.response = {
+    status_code = 200,
+    body = table.concat({
+        "# Releases",
+        "### 2.6.8 / 2026.02.02",
+        "### 2.6.7 / 2026.01.29",
+        "### 1.40.3 / 2024.02.01",
+        "### 1.40.2 / 2024.01.26",
+        "### 1.10.1 / 2021.05.11",
+        "### 1.10.0 / 2021.05.11",
+        "### 1.6.0 / 2020.12.08",
+        "### 1.5.4 / 2020.11.23",
+        "### v0.36.0 / 2020.03.11",
+        "### v0.35.0 / 2020.02.28",
+        "### v0.0.0 / 2018.05.14 - 2018.06.22 / Golang Prototype",
+        "",
+    }, "\n"),
+}
+
+--- Sets the platform that Available reads.
+local function platform(os_type, arch_type)
+    RUNTIME.osType = os_type
+    RUNTIME.archType = arch_type
+end
+
+local x86_list = "2.6.8 2.6.7 1.40.3 1.40.2 1.10.1 1.6.0 1.5.4 0.36.0"
+local platform_lists = {
+    { "linux", "amd64", x86_list },
+    { "darwin", "amd64", x86_list },
+    { "windows", "amd64", x86_list },
+    { "linux", "arm64", "2.6.8 2.6.7 1.40.3" },
+    { "darwin", "arm64", "2.6.8 2.6.7 1.40.3 1.40.2 1.10.1 1.6.0" },
+    { "windows", "arm64", "2.6.8" },
+}
+for _, item in ipairs(platform_lists) do
+    platform(item[1], item[2])
+    local got = listed()
+    assert(got == item[3], item[1] .. "/" .. item[2] .. " lists " .. got)
+    cases = cases + 1
+end
+
+-- A platform with no release from its first download on has nothing to list.
+state.response = { status_code = 200, body = "# Releases\n### 1.5.4 / 2020.11.23\n" }
+platform("windows", "arm64")
+fails("No Deno version has a download for this platform")
+
+-- A platform that Deno does not build for fails the same way the install does.
+platform("linux", "386")
+fails("Deno does not support 386 architecture")
+
+platform("linux", "amd64")
 print("PASS: " .. cases .. " Available cases")

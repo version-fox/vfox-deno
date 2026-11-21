@@ -6,13 +6,13 @@
 
 ```
 metadata.lua                  plugin name, version, notes and minimum vfox version
-hooks/available.lua           vfox search: the stable releases, from Deno's Releases.md
+hooks/available.lua           vfox search: the stable releases with a download for the platform, from Deno's Releases.md
 hooks/pre_install.lua         vfox install: resolves the version, the download and its SHA-256
 hooks/post_install.lua        nothing to do: the archive unpacks to a folder with deno in it
 hooks/env_keys.lua            PATH, the folder the install holds
 hooks/pre_use.lua             vfox use: nothing to map, vfox selects the install
 hooks/detect.lua              vfox link --detect: finds the Deno installs already on the machine
-lib/util.lua                  release and download addresses, and the platform names Deno uses
+lib/util.lua                  release and download addresses, the platform names Deno uses, and which releases have a download
 lib/checksum.lua              reads the digest of a download from Deno's checksum file
 lib/detect_deno.lua           the folders to search, and how a Deno is recognised and named
 tests/*_test.lua              offline hook tests, run by vfox plugin test
@@ -41,6 +41,7 @@ A few contracts that cost time to find:
 - Only a 404 for the checksum file lets the install go on without a digest, and it prints a note: some releases, such as Deno 1.46.3, publish no checksum file. Every other answer must give a digest for this build. A file that cannot be fetched, an error status, or a file that names no digest for the archive raises an error, so the install stops and a download is never installed unverified.
 - `version` becomes the name of the install, so it is the release number with no `v` and no build metadata. `PreInstall` accepts a leading `v`, as in `v2.7.0`.
 - Versions are matched as whole numbers: `2.1` matches `2.1.10`, `2.1.1` does not. `Available` returns the list newest first, and `latest` is its first entry.
+- `Available` leaves out a release that has no download for the platform. `lib/util.lua` holds the first release with a download for each platform (`util.FirstDownload`) and the releases with none (`util.NoDownload`), taken from the GitHub release assets. When Deno publishes a release with no archive for a platform, add it there and cover it in `tests/available_test.lua`.
 - `Detect` returns a list of `{ version, path, note }`. `path` is the folder that holds the `deno` executable directly, which is what `EnvKeys` puts on `PATH`. The version is what `deno --version` prints, without the build metadata after a plus sign.
 - `EnvKeys` sets `PATH` only. Deno needs no other variable.
 - `PreUse` and `PostInstall` do nothing. They stay as the documented extension points of the plugin.

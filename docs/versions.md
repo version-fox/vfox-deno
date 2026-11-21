@@ -25,6 +25,8 @@ vfox search deno
 
 The list comes from the release headings in Deno's `Releases.md`, newest first. A release shows up there when Deno has finished it, so a release that was just tagged may take a little while to appear.
 
+The list shows only the releases that have a download for your platform. Deno's archives start at a different release on each platform, and Deno published no archive for 1.10.0. So the list starts at 0.36.0 on Linux, macOS and Windows with x86_64, at 1.6.0 on macOS with arm64, at 1.40.3 on Linux with arm64, and at 2.6.8 on Windows with arm64. `vfox install` of a release that has no download says so, for example `Deno 0.35.0 has no download for linux/amd64: downloads for this platform start with 0.36.0`. See [platforms.md](platforms.md).
+
 ## Installing and using
 
 ```bash

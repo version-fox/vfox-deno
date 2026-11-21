@@ -23,6 +23,7 @@ local RELEASES = table.concat({
     "### 2.1.10 / 2025.01.01",
     "### 2.1.4 / 2024.12.01",
     "### 1.46.3 / 2025.02.01",
+    "### 1.6.0 / 2020.12.08",
     "",
 }, "\n")
 local DIGEST = string.rep("ab", 32)
@@ -114,6 +115,20 @@ RUNTIME.archType = "arm64"
 resolves("2.9.8", "2.9.8", download("2.9.8", "deno-aarch64-unknown-linux-gnu.zip"), DIGEST)
 RUNTIME.archType = "386"
 fails("2.9.8", "Deno does not support 386 architecture")
+RUNTIME.archType = "amd64"
+
+-- A release with no download for the platform fails before anything is fetched,
+-- and the error says why. 1.10.0 has none on any platform, and the releases before
+-- a platform's first download have none there.
+fails("0.0.0", "Deno 0.0.0 has no download for linux/amd64: downloads for this platform start with 0.36.0")
+fails("0.35.0", "Deno 0.35.0 has no download for linux/amd64: downloads for this platform start with 0.36.0")
+fails("1.10.0", "Deno 1.10.0 has no download for linux/amd64: Deno published no archive for it on any platform")
+RUNTIME.archType = "arm64"
+fails("1.40.2", "Deno 1.40.2 has no download for linux/arm64: downloads for this platform start with 1.40.3")
+RUNTIME.osType = "darwin"
+resolves("1.6.0", "1.6.0", download("1.6.0", "deno-aarch64-apple-darwin.zip"), DIGEST)
+fails("1.5.4", "Deno 1.5.4 has no download for darwin/arm64: downloads for this platform start with 1.6.0")
+RUNTIME.osType = "linux"
 RUNTIME.archType = "amd64"
 
 -- A 404 for the checksum file is the one answer that means Deno published none:

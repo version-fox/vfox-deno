@@ -16,7 +16,7 @@ The plugin picks the Deno build for the platform vfox runs on. The name of each 
 ## Limits
 
 - **Linux without glibc.** Deno's releases contain no musl build, so Alpine and other musl systems are not supported. The plugin installs the glibc build there, which may not run.
-- **Windows arm64 before 2.6.8.** Deno 2.6.7 and earlier have no Windows arm64 build, so GitHub has no archive for it and vfox's download fails. Install 2.6.8 or later instead; `vfox search deno` lists them.
+- **Older releases.** Deno's archives for a platform start at a release that depends on the platform: 0.36.0 on x86_64 Linux, macOS and Windows, 1.6.0 on macOS arm64, 1.40.3 on Linux arm64 and 2.6.8 on Windows arm64. Deno 1.10.0 has no archive on any platform. `vfox search deno` leaves the earlier releases out, and `vfox install` of one stops with the reason before it downloads anything. Install a release from the list instead.
 - **Other CPUs and systems.** The plugin stops with `Deno does not support <os> os` or `Deno does not support <arch> architecture` before it downloads anything.
 
 ## Requirements

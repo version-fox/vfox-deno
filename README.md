@@ -19,7 +19,7 @@ deno --version
 
 `deno --version` shows the Deno that is selected. For `deno` to be on the `PATH`, vfox has to be hooked into your shell, see its [quick start](https://vfox.dev/guides/quick-start.html).
 
-`vfox search deno` lists the stable releases, newest first.
+`vfox search deno` lists the stable releases that have a download for your platform, newest first.
 
 ## Versions
 

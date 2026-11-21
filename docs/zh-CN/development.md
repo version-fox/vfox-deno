@@ -6,13 +6,13 @@
 
 ```
 metadata.lua                  plugin name, version, notes and minimum vfox version
-hooks/available.lua           vfox search: the stable releases, from Deno's Releases.md
+hooks/available.lua           vfox search: the stable releases with a download for the platform, from Deno's Releases.md
 hooks/pre_install.lua         vfox install: resolves the version, the download and its SHA-256
 hooks/post_install.lua        nothing to do: the archive unpacks to a folder with deno in it
 hooks/env_keys.lua            PATH, the folder the install holds
 hooks/pre_use.lua             vfox use: nothing to map, vfox selects the install
 hooks/detect.lua              vfox link --detect: finds the Deno installs already on the machine
-lib/util.lua                  release and download addresses, and the platform names Deno uses
+lib/util.lua                  release and download addresses, the platform names Deno uses, and which releases have a download
 lib/checksum.lua              reads the digest of a download from Deno's checksum file
 lib/detect_deno.lua           the folders to search, and how a Deno is recognised and named
 tests/*_test.lua              offline hook tests, run by vfox plugin test
@@ -41,6 +41,7 @@ vfox 会加载 `metadata.lua`，在某个命令需要时调用对应的钩子，
 - 只有 404 的校验和文件才会让安装在没有摘要的情况下继续，并打印一条说明：有些发布版本（例如 Deno 1.46.3）不发布校验和文件。其他任何回应都必须为此构建给出摘要。无法获取文件、错误状态，或文件中没有为该压缩包注明摘要，都会引发错误，因此安装会停止，下载的内容绝不会在未经校验的情况下被安装。
 - `version` 会成为安装版本的名称，因此它是不带 `v` 且不带构建元数据的发布版本号。`PreInstall` 接受开头的 `v`，例如 `v2.7.0`。
 - 版本按整体编号匹配：`2.1` 会匹配 `2.1.10`，`2.1.1` 则不会。`Available` 按从新到旧的顺序返回列表，`latest` 是列表中的第一项。
+- `Available` 会略去在该平台上没有下载的发布版本。`lib/util.lua` 中记录了每个平台第一个有下载的发布版本（`util.FirstDownload`）以及没有任何下载的发布版本（`util.NoDownload`），数据取自 GitHub 的发布版本资产。当 Deno 发布了某个平台没有压缩包的版本时，请将其加入该处，并在 `tests/available_test.lua` 中加以覆盖。
 - `Detect` 返回 `{ version, path, note }` 的列表。`path` 是直接包含 `deno` 可执行文件的目录，这正是 `EnvKeys` 放入 `PATH` 的内容。版本即 `deno --version` 所打印的内容，但不包括加号之后的构建元数据。
 - `EnvKeys` 只设置 `PATH`。Deno 不需要其他变量。
 - `PreUse` 和 `PostInstall` 不做任何事。它们作为插件中有文档说明的扩展点保留下来。

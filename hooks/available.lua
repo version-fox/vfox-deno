@@ -15,9 +15,10 @@
 local util = require("util")
 local http = require("http")
 
---- Returns all the stable versions that Deno has released, newest first. The
---- list comes from the headings of Deno's Releases.md, which name each release
---- as `### 2.9.8 / 2026.10.21`; pre-releases are left out.
+--- Returns the stable versions that Deno has released for this platform, newest
+--- first. The list comes from the headings of Deno's Releases.md, which name
+--- each release as `### 2.9.8 / 2026.10.21`. Pre-releases are left out, and so
+--- are the releases with no download for this platform (see util:noDownloadReason).
 --- @param ctx table Empty table used as context, for future extension
 --- @return table Descriptions of available versions and accompanying tool descriptions
 function PLUGIN:Available(ctx)
@@ -30,20 +31,27 @@ function PLUGIN:Available(ctx)
     if resp.status_code ~= 200 then
         error("Failed to fetch Deno releases: HTTP " .. tostring(resp.status_code))
     end
+    local listed = 0
     local result = {}
     local seen = {}
     for line in string.gmatch(resp.body or "", "[^\r\n]+") do
         local version = line:match("^###%s+v?(%d+%.%d+%.%d+)%s*/")
         if version and not seen[version] then
             seen[version] = true
-            table.insert(result, {
-                version = version,
-                note = "",
-            })
+            listed = listed + 1
+            if util:noDownloadReason(version) == nil then
+                table.insert(result, {
+                    version = version,
+                    note = "",
+                })
+            end
         end
     end
-    if #result == 0 then
+    if listed == 0 then
         error("No Deno versions found in " .. util.ReleaseURL .. "; the upstream response may have changed")
+    end
+    if #result == 0 then
+        error("No Deno version has a download for this platform in " .. util.ReleaseURL)
     end
     return result
 end
