@@ -10,6 +10,10 @@ The messages below are what the plugin and vfox print. Each one says what happen
 
 No stable release starts with what you typed. Run `vfox search deno` for the list. Pre-releases are not in it, see [versions.md](versions.md).
 
+**`Deno 0.0.0 has no download for linux/amd64: downloads for this platform start with 0.36.0`**
+
+The release has no archive for your platform, so vfox cannot install it. The message says where the downloads start, or that Deno published no archive for the release, as it did for 1.10.0. Run `vfox search deno` for the releases that have one, see [platforms.md](platforms.md).
+
 **`No version given, for example: vfox install deno@2`**
 
 The version was empty. Name one, such as `latest` or `2`.
@@ -46,7 +50,7 @@ The checksum file could not be fetched, answered with an error, or names no SHA-
 
 **`HTTP 404` while vfox downloads the archive**
 
-GitHub has no archive for this Deno release on your platform. The usual cause is Windows arm64 with a release before 2.6.8. See [platforms.md](platforms.md) and install a newer release.
+GitHub has no archive for this Deno release on your platform, and the plugin did not know it when it listed the release. The plugin lists a release unless it knows that Deno has no archive for it there, so this is a gap the plugin does not know about yet. Install another release, and report it with the output of `vfox --debug install deno@<version>`. See [platforms.md](platforms.md) for the first release with a download on each platform.
 
 **`Checksum error`**
 

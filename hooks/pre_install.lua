@@ -88,7 +88,8 @@ end
 
 --- Returns the version to install and where to download it. The download
 --- carries the SHA-256 digest Deno publishes for it, which vfox verifies before
---- it unpacks the archive.
+--- it unpacks the archive. An exact release with no download for this platform
+--- fails here, before anything is fetched, and the error says why.
 --- ctx.version is the version the user typed.
 --- @param ctx table
 --- @return table Version information
@@ -96,6 +97,11 @@ function PLUGIN:PreInstall(ctx)
     local requested = normalize(ctx.version)
     if requested == "" then
         error("No version given, for example: vfox install deno@2")
+    end
+    local reason = util:noDownloadReason(requested)
+    if reason ~= nil then
+        local platform = RUNTIME.osType .. "/" .. RUNTIME.archType
+        error("Deno " .. requested .. " has no download for " .. platform .. ": " .. reason)
     end
     local version = resolve(self:Available({}), requested)
     local filename, url = package_for(version)

@@ -10,6 +10,10 @@
 
 没有稳定发布版本以你输入的内容开头。运行 `vfox search deno` 查看列表。列表中不包含预发布版本，参见 [versions.md](versions.md)。
 
+**`Deno 0.0.0 has no download for linux/amd64: downloads for this platform start with 0.36.0`**
+
+该发布版本在你的平台上没有压缩包，因此 vfox 无法安装它。消息会说明下载从哪个版本开始，或说明 Deno 没有为该发布版本发布压缩包（例如 1.10.0）。运行 `vfox search deno` 查看有压缩包的发布版本，参见 [platforms.md](platforms.md)。
+
 **`No version given, for example: vfox install deno@2`**
 
 版本为空。请指定一个版本，例如 `latest` 或 `2`。
@@ -46,7 +50,7 @@ GitHub 返回了错误状态。请稍后再试。
 
 **vfox 下载压缩包时出现 `HTTP 404`**
 
-GitHub 上没有该 Deno 发布版本在你所用平台上的压缩包。常见原因是在 Windows arm64 上使用 2.6.8 之前的发布版本。参见 [platforms.md](platforms.md)，并安装更新的发布版本。
+GitHub 上没有该 Deno 发布版本在你所用平台上的压缩包，而插件在列出该版本时并不知道这一点。除非插件已知 Deno 在该平台上没有压缩包，否则它会列出该版本，因此这是插件尚未掌握的缺口。请安装另一个发布版本，并附上 `vfox --debug install deno@<version>` 的输出报告该问题。各平台有下载的起始发布版本参见 [platforms.md](platforms.md)。
 
 **`Checksum error`**
 

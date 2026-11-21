@@ -6,6 +6,7 @@ What changed in each release, as a user notices it. GitHub's release pages list 
 
 ## Unreleased
 
+- `vfox search deno` lists only the releases that have a download for your platform. It used to list releases with none: 71 of the 380 on Linux with x86_64, and 349 of them on Windows with arm64. `vfox install` of one of those names the reason instead of failing on the download.
 - `vfox link --detect deno` adopts a Deno that is already on the machine instead of downloading another copy: the Deno install script's folder, Cargo, Homebrew, asdf, mise, Scoop and winget on Windows, Program Files, and every folder on `PATH`. It needs vfox 1.1.0 or later. See [link.md](link.md).
 - Each download is checked against the SHA-256 digest that Deno publishes next to it, and vfox prints the digest it checked. A release with no checksum file (Deno 1.46.3, for one) installs with a note that it could not be verified. If the checksum file cannot be fetched or does not name a digest, the install stops instead, so nothing is installed unverified.
 - `vfox info deno` shows a link to this README, where the usage is described.

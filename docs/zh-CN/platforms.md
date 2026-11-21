@@ -16,7 +16,7 @@
 ## 限制
 
 - **没有 glibc 的 Linux。** Deno 的发布版本中没有 musl 构建，因此 Alpine 以及其他使用 musl 的系统不受支持。插件会在这些系统上安装 glibc 构建版本，它可能无法运行。
-- **2.6.8 之前的 Windows arm64。** Deno 2.6.7 及更早版本没有 Windows arm64 构建版本，因此 GitHub 上没有对应的压缩包，vfox 的下载会失败。请改为安装 2.6.8 或更高版本；`vfox search deno` 会列出这些版本。
+- **较早的发布版本。** Deno 为各平台提供压缩包的起始发布版本各不相同：x86_64 的 Linux、macOS 和 Windows 从 0.36.0 开始，arm64 的 macOS 从 1.6.0 开始，arm64 的 Linux 从 1.40.3 开始，arm64 的 Windows 从 2.6.8 开始。Deno 1.10.0 在任何平台上都没有压缩包。`vfox search deno` 会排除更早的发布版本，而 `vfox install` 安装其中某个版本时，会在下载任何内容之前停止并说明原因。请改为安装列表中的发布版本。
 - **其他 CPU 和系统。** 插件会在下载任何内容之前停止运行，并显示 `Deno does not support <os> os` 或 `Deno does not support <arch> architecture`。
 
 ## 要求
