@@ -56,6 +56,10 @@ GitHub 上没有该 Deno 发布版本在你所用平台上的压缩包，而插�
 
 收到的压缩包不是 Deno 发布的那个，因此 vfox 停止了安装，且没有安装任何内容。请重新运行该命令。如果仍然以同样的方式失败，下载内容可能在传输途中被改动，此时请不要使用那份副本，并报告该问题。
 
+**`fork/exec <path>/deno: permission denied`**
+
+有些发布版本的压缩包没有为 `deno` 设置可执行位，例如 x86_64 Linux 上的 Deno 0.36.0。插件会在解压压缩包后设置该位，因此只有在此之前完成的安装仍然没有它。请使用 `vfox uninstall deno@<版本>` 和 `vfox install deno@<版本>` 重新安装该发布版本，或对消息中指出的文件运行 `chmod +x <路径>`。
+
 ## 平台
 
 **`Deno does not support <os> os`** 或 **`Deno does not support <arch> architecture`**

@@ -8,7 +8,7 @@
 metadata.lua                  plugin name, version, notes and minimum vfox version
 hooks/available.lua           vfox search: the stable releases with a download for the platform, from Deno's Releases.md
 hooks/pre_install.lua         vfox install: resolves the version, the download and its SHA-256
-hooks/post_install.lua        nothing to do: the archive unpacks to a folder with deno in it
+hooks/post_install.lua        sets the execute bit on deno, which some archives leave off
 hooks/env_keys.lua            PATH, the folder the install holds
 hooks/pre_use.lua             vfox use: nothing to map, vfox selects the install
 hooks/detect.lua              vfox link --detect: finds the Deno installs already on the machine
@@ -44,7 +44,8 @@ vfox 会加载 `metadata.lua`，在某个命令需要时调用对应的钩子，
 - `Available` 会略去在该平台上没有下载的发布版本。`lib/util.lua` 中记录了每个平台第一个有下载的发布版本（`util.FirstDownload`）以及没有任何下载的发布版本（`util.NoDownload`），数据取自 GitHub 的发布版本资产。当 Deno 发布了某个平台没有压缩包的版本时，请将其加入该处，并在 `tests/available_test.lua` 中加以覆盖。
 - `Detect` 返回 `{ version, path, note }` 的列表。`path` 是直接包含 `deno` 可执行文件的目录，这正是 `EnvKeys` 放入 `PATH` 的内容。版本即 `deno --version` 所打印的内容，但不包括加号之后的构建元数据。
 - `EnvKeys` 只设置 `PATH`。Deno 不需要其他变量。
-- `PreUse` 和 `PostInstall` 不做任何事。它们作为插件中有文档说明的扩展点保留下来。
+- `PostInstall` 在 Linux 和 macOS 上为 `deno` 设置可执行位，所在目录即 SDK 安装目录，也就是 `EnvKeys` 放入 `PATH` 的目录。有些压缩包没有设置该位：Deno 0.36.0 的 Linux 压缩包将 `deno` 存为 `-rw-r--r--`，此时 `vfox exec` 会以 `permission denied` 失败。Windows 没有可执行位，因此不做任何事。目录取自 `ctx.sdkInfo.deno.path`；`ctx.rootPath` 是 vfox 1.1.0 中它的上一级目录。
+- `PreUse` 不做任何事。它作为插件中有文档说明的扩展点保留下来。
 
 ## 修改钩子
 
@@ -62,7 +63,7 @@ vfox plugin test .
 vfox plugin test . --file tests/detect_test.lua
 ```
 
-请在仓库根目录下运行它。该虚拟机会禁用 `io.popen` 和 `os.execute`。因此，检测测试会用描述目录、文件以及每个 `deno --version` 输出内容的表，替换 `os.getenv`、`io.open` 和 `io.popen`，所以它们绝不会接触真正的 Deno。`test.load` 接受平台（`os`、`arch`）作为参数，并且可以修改 `RUNTIME.osType` 来尝试另一种平台，正如 Windows 和 macOS 的测试用例所做的那样。`http` 选项会应答 `Available` 和 `PreInstall` 发出的请求，因此没有任何测试需要网络。
+请在仓库根目录下运行它。该虚拟机会禁用 `io.popen` 和 `os.execute`。因此，检测测试会用描述目录、文件以及每个 `deno --version` 输出内容的表，替换 `os.getenv`、`io.open` 和 `io.popen`，所以它们绝不会接触真正的 Deno。`tests/post_install_test.lua` 以同样的方式替换 `io.popen`，记录它本应运行的 `chmod` 命令。`test.load` 接受平台（`os`、`arch`）作为参数，并且可以修改 `RUNTIME.osType` 来尝试另一种平台，正如 Windows 和 macOS 的测试用例所做的那样。`http` 选项会应答 `Available` 和 `PreInstall` 发出的请求，因此没有任何测试需要网络。
 
 ## 开发容器
 
@@ -129,7 +130,7 @@ docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.12 -color
 | lua-language-server | 3.19.1  | `lint.yml`、`.devcontainer/Dockerfile` 和 `.devcontainer/install-tools.sh`                          |
 | skywalking-eyes     | 0.9.0   | `license.yml` 和 `.devcontainer/install-tools.sh`                       |
 | actionlint          | 1.7.12  | `lint.yml` 和 `.devcontainer/install-tools.sh`                          |
-| 被测试的 Deno       | 2.7.0   | `tests/e2e/e2e_test.go`                                                 |
+| 被测试的 Deno       | 2.7.0 和 0.36.0 | `tests/e2e/e2e_test.go`                                                 |
 
 ## 发布
 

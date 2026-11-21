@@ -8,7 +8,7 @@
 metadata.lua                  plugin name, version, notes and minimum vfox version
 hooks/available.lua           vfox search: the stable releases with a download for the platform, from Deno's Releases.md
 hooks/pre_install.lua         vfox install: resolves the version, the download and its SHA-256
-hooks/post_install.lua        nothing to do: the archive unpacks to a folder with deno in it
+hooks/post_install.lua        sets the execute bit on deno, which some archives leave off
 hooks/env_keys.lua            PATH, the folder the install holds
 hooks/pre_use.lua             vfox use: nothing to map, vfox selects the install
 hooks/detect.lua              vfox link --detect: finds the Deno installs already on the machine
@@ -44,7 +44,8 @@ A few contracts that cost time to find:
 - `Available` leaves out a release that has no download for the platform. `lib/util.lua` holds the first release with a download for each platform (`util.FirstDownload`) and the releases with none (`util.NoDownload`), taken from the GitHub release assets. When Deno publishes a release with no archive for a platform, add it there and cover it in `tests/available_test.lua`.
 - `Detect` returns a list of `{ version, path, note }`. `path` is the folder that holds the `deno` executable directly, which is what `EnvKeys` puts on `PATH`. The version is what `deno --version` prints, without the build metadata after a plus sign.
 - `EnvKeys` sets `PATH` only. Deno needs no other variable.
-- `PreUse` and `PostInstall` do nothing. They stay as the documented extension points of the plugin.
+- `PostInstall` sets the execute bit on `deno` in the SDK installation directory, the folder `EnvKeys` puts on `PATH`, on Linux and macOS. Some archives leave the bit off: Deno 0.36.0's Linux archive holds `deno` as `-rw-r--r--`, and `vfox exec` would fail with `permission denied`. Windows has no execute bit, so nothing is done there. `ctx.sdkInfo.deno.path` gives the folder; `ctx.rootPath` is the folder above it, as vfox 1.1.0 lays it out.
+- `PreUse` does nothing. It stays as the documented extension point of the plugin.
 
 ## Changing a hook
 
@@ -62,7 +63,7 @@ vfox plugin test .
 vfox plugin test . --file tests/detect_test.lua
 ```
 
-Run it from the repository root. The VM disables `io.popen` and `os.execute`. The detect tests therefore replace `os.getenv`, `io.open` and `io.popen` with tables that describe the folders, the files and what each `deno --version` prints, so they never touch a real Deno. `test.load` takes the platform (`os`, `arch`), and `RUNTIME.osType` can be changed to try another one, as the Windows and macOS cases do. The `http` option answers the requests of `Available` and `PreInstall`, so no test needs the network.
+Run it from the repository root. The VM disables `io.popen` and `os.execute`. The detect tests therefore replace `os.getenv`, `io.open` and `io.popen` with tables that describe the folders, the files and what each `deno --version` prints, so they never touch a real Deno. `tests/post_install_test.lua` replaces `io.popen` the same way, to record the `chmod` command it would run. `test.load` takes the platform (`os`, `arch`), and `RUNTIME.osType` can be changed to try another one, as the Windows and macOS cases do. The `http` option answers the requests of `Available` and `PreInstall`, so no test needs the network.
 
 ## Dev container
 
@@ -129,7 +130,7 @@ Each version is written in the workflows and in the dev container that use it. C
 | lua-language-server | 3.19.1  | `lint.yml`, `.devcontainer/Dockerfile` and `.devcontainer/install-tools.sh`                         |
 | skywalking-eyes     | 0.9.0   | `license.yml` and `.devcontainer/install-tools.sh`                      |
 | actionlint          | 1.7.12  | `lint.yml` and `.devcontainer/install-tools.sh`                         |
-| Deno under test     | 2.7.0   | `tests/e2e/e2e_test.go`                                                 |
+| Deno under test     | 2.7.0 and 0.36.0 | `tests/e2e/e2e_test.go`                                                 |
 
 ## Releasing
 

@@ -41,7 +41,8 @@
 6. **前导 v。** `vfox install deno@v2.7.0` 以 0 退出，并且精确地指明 2.7.0，无论它是安装该发布版本还是发现它已安装。
 7. **未知版本。** `vfox install deno@9.9.9` 以 `Could not resolve version` 失败。这个失败是预期的结果，因此该步骤不会重试。
 8. **检测与链接。** 2.7.0 的二进制文件被复制到 `$DENO_INSTALL/bin`，并卸载 vfox 自己的副本。`vfox link --detect -y deno` 必须找到该副本并将其链接为 2.7.0，且输出中不能提及 `VFOX_HOME`。随后 `vfox list deno` 必须显示该链接，`vfox exec` 必须运行该副本，而 `vfox uninstall` 只能删除链接，并保留二进制文件。参见 [link.md](link.md)。
-9. **清理。** 卸载仍然安装着的每个版本。这是尽力而为的：失败会被记录，临时根目录无论如何都会被删除。
+9. **Linux 的第一个发布版本。** `vfox install deno@0.36.0` 安装 x86_64 Linux 上第一个有下载的发布版本，它的压缩包没有为 `deno` 设置可执行位。`vfox exec deno@0.36.0 -- deno --version` 打印的第一行必须是 `deno 0.36.0`。该步骤只在 x86_64 的 Linux 上运行：Windows 上没有可执行位可供检查，arm64 的 Linux 上则没有该发布版本的下载。
+10. **清理。** 卸载仍然安装着的每个版本。这是尽力而为的：失败会被记录，临时根目录无论如何都会被删除。
 
 ## 重试
 
