@@ -4,7 +4,7 @@
 
 What changed in each release, as a user notices it. GitHub's release pages list the pull requests.
 
-## Unreleased
+## 0.2.2 (2026-11-21)
 
 - `vfox search deno` lists only the releases that have a download for your platform. It used to list releases with none: 71 of the 380 on Linux with x86_64, and 349 of them on Windows with arm64. `vfox install` of one of those names the reason instead of failing on the download.
 - `vfox link --detect deno` adopts a Deno that is already on the machine instead of downloading another copy: the Deno install script's folder, Cargo, Homebrew, asdf, mise, Scoop and winget on Windows, Program Files, and every folder on `PATH`. It needs vfox 1.1.0 or later. See [link.md](link.md).

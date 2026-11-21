@@ -115,6 +115,8 @@ docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.12 -color
 | E2E             | `e2e.yml`                       | the end-to-end suite on Ubuntu (amd64, arm64) and Windows (amd64, arm64)       |
 | Plugin          | `publish.yaml`                  | the shared check on pull requests, and the release on a tag or a manual run    |
 
+A newer push to a pull request cancels the E2E run of the push before it. A push to `main` is never cancelled, because each commit on `main` has a group of its own.
+
 ## Pinned tools
 
 Each version is written in the workflows and in the dev container that use it. Change a version in all of them, and in this table.
@@ -123,8 +125,8 @@ Each version is written in the workflows and in the dev container that use it. C
 | ------------------- | ------- | ----------------------------------------------------------------------- |
 | vfox                | 1.1.0   | `test.yml` (with its SHA-256), `tests/e2e/vfox.go` and `.devcontainer/` |
 | Go                  | 1.27.3  | `lint.yml`, `e2e.yml` and `.devcontainer/Dockerfile`                    |
-| stylua              | 2.5.2   | `lint.yml` and `.devcontainer/install-tools.sh`                         |
-| lua-language-server | 3.19.1  | `lint.yml` and `.devcontainer/install-tools.sh`                         |
+| stylua              | 2.5.2   | `lint.yml`, `.devcontainer/Dockerfile` and `.devcontainer/install-tools.sh`                         |
+| lua-language-server | 3.19.1  | `lint.yml`, `.devcontainer/Dockerfile` and `.devcontainer/install-tools.sh`                         |
 | skywalking-eyes     | 0.9.0   | `license.yml` and `.devcontainer/install-tools.sh`                      |
 | actionlint          | 1.7.12  | `lint.yml` and `.devcontainer/install-tools.sh`                         |
 | Deno under test     | 2.7.0   | `tests/e2e/e2e_test.go`                                                 |
@@ -134,6 +136,8 @@ Each version is written in the workflows and in the dev container that use it. C
 A maintainer publishes from **Actions → Plugin → Run workflow** on the default branch, entering a stable plugin version without the `v` prefix. The shared workflow, [plugin-manifest-action](https://github.com/version-fox/plugin-manifest-action), updates `metadata.lua`, creates the version commit and the tag, and publishes the ZIP and the manifest in this repository. No local tag or extra release token is needed. Pull requests run the checks only.
 
 Pushing a version tag publishes too, when `PLUGIN.version` already matches the tag. If publication fails, re-run the failed job to resume it.
+
+The workflow follows the shared `@v1` release-tool version. Updating the tool does not release this plugin. See the [shared workflow documentation](https://github.com/version-fox/plugin-manifest-action) for the package contract and first-rollout requirements.
 
 ### After a release
 

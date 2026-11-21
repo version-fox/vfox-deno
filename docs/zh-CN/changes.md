@@ -4,7 +4,7 @@
 
 以下记录每个发布版本的变更，按用户所能察觉到的方式描述。GitHub 的发布页面会列出拉取请求。
 
-## 未发布
+## 0.2.2 (2026-11-21)
 
 - `vfox search deno` 只列出在你的平台上有下载的发布版本。此前列表中包含没有下载的发布版本：在 x86_64 的 Linux 上，380 个中有 71 个；在 arm64 的 Windows 上，有 349 个。对于其中的版本，`vfox install` 会说明原因，而不是在下载时失败。
 - `vfox link --detect deno` 会采用机器上已有的 Deno，而不是再下载一份：检查的位置包括 Deno 安装脚本的目录、Cargo、Homebrew、asdf、mise、Windows 上的 Scoop 和 winget、Program Files，以及 `PATH` 中的每个目录。它需要 vfox 1.1.0 或更高版本。参见 [link.md](link.md)。
