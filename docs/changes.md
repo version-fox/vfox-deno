@@ -4,9 +4,9 @@
 
 What changed in each release, as a user notices it. GitHub's release pages list the pull requests.
 
-## Unreleased
+## 0.2.3 (2026-11-21)
 
-- On Linux and macOS, `vfox install` sets the execute bit on `deno` after it unpacks the archive. Deno 0.36.0's Linux archive leaves the bit off, so `vfox exec deno@0.36.0 -- deno --version` failed with `permission denied`; it now prints `deno 0.36.0`. An install made before this change keeps the bit off, see [troubleshooting.md](troubleshooting.md).
+- On Linux and macOS, `vfox install` sets the execute bit on `deno` after it unpacks the archive. Deno 0.36.0's Linux archive leaves the bit off, so `vfox exec deno@0.36.0 -- deno --version` failed with `permission denied`; it now prints `deno 0.36.0`. An install made before 0.2.3 keeps the bit off, see [troubleshooting.md](troubleshooting.md).
 
 ## 0.2.2 (2026-11-21)
 
