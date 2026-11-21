@@ -158,4 +158,25 @@ checksum_stops(
 )
 state.checksum = nil
 
+-- The Windows build's checksum file is PowerShell's Get-FileHash output, which
+-- PreInstall must read like the sha256sum form (see tests/checksum_test.lua).
+local WINDOWS_NAME = "deno-x86_64-pc-windows-msvc.zip"
+local WINDOWS_DIGEST = "CBA84B26E0DF5AE7F74FC66B86A95B866872A86292EBD84FA1E959927EDD93BF"
+state.checksum = {
+    response = {
+        status_code = 200,
+        body = "\r\nAlgorithm : SHA256\r\nHash      : "
+            .. WINDOWS_DIGEST
+            .. "\r\nPath      : C:\\a\\deno\\deno\\target\\release\\"
+            .. WINDOWS_NAME
+            .. "\r\n\r\n",
+    },
+}
+RUNTIME.osType = "windows"
+RUNTIME.archType = "amd64"
+resolves("2.9.8", "2.9.8", download("2.9.8", WINDOWS_NAME), WINDOWS_DIGEST:lower())
+RUNTIME.osType = "linux"
+RUNTIME.archType = "amd64"
+state.checksum = nil
+
 print("PASS: " .. cases .. " PreInstall cases")

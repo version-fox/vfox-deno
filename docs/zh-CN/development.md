@@ -13,7 +13,7 @@ hooks/env_keys.lua            PATH, the folder the install holds
 hooks/pre_use.lua             vfox use: nothing to map, vfox selects the install
 hooks/detect.lua              vfox link --detect: finds the Deno installs already on the machine
 lib/util.lua                  release and download addresses, and the platform names Deno uses
-lib/checksum.lua              reads the digest of a download from Deno's .sha256sum file
+lib/checksum.lua              reads the digest of a download from Deno's checksum file
 lib/detect_deno.lua           the folders to search, and how a Deno is recognised and named
 tests/*_test.lua              offline hook tests, run by vfox plugin test
 tests/e2e/                    the end-to-end suite, a Go module (see e2e.md)
@@ -37,7 +37,7 @@ vfox 会加载 `metadata.lua`，在某个命令需要时调用对应的钩子，
 
 有几条约定，找起来很费时间：
 
-- `PreInstall` 返回 `version` 和 `url`，如果校验和文件给出了摘要，还会返回 `sha256`。vfox 会把摘要与下载的内容进行比较，因此键名必须正好是小写的 `sha256`，前后不能有其他内容。`lib/checksum.lua` 会从 `<digest>  <name>` 中取出摘要并转为小写；如果无法确定该摘要，它就不返回任何内容。
+- `PreInstall` 返回 `version` 和 `url`，如果校验和文件给出了摘要，还会返回 `sha256`。vfox 会把摘要与下载的内容进行比较，因此键名必须正好是小写的 `sha256`，前后不能有其他内容。`lib/checksum.lua` 能读取 Deno 发布的两种形式：sha256sum 的 `<digest>  <name>`（Linux 和 macOS），以及 PowerShell 的 Get-FileHash 中的 `Algorithm`、`Hash` 和 `Path` 行（Windows）。它会把摘要转为小写；如果无法确定该摘要，则不返回任何内容，并给出原因。
 - 只有 404 的校验和文件才会让安装在没有摘要的情况下继续，并打印一条说明：有些发布版本（例如 Deno 1.46.3）不发布校验和文件。其他任何回应都必须为此构建给出摘要。无法获取文件、错误状态，或文件中没有为该压缩包注明摘要，都会引发错误，因此安装会停止，下载的内容绝不会在未经校验的情况下被安装。
 - `version` 会成为安装版本的名称，因此它是不带 `v` 且不带构建元数据的发布版本号。`PreInstall` 接受开头的 `v`，例如 `v2.7.0`。
 - 版本按整体编号匹配：`2.1` 会匹配 `2.1.10`，`2.1.1` 则不会。`Available` 按从新到旧的顺序返回列表，`latest` 是列表中的第一项。

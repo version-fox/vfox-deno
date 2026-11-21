@@ -56,6 +56,38 @@ rejects("", NAME, "the checksum file holds no digest")
 rejects("# nothing here\n", NAME, "the checksum file holds no digest")
 rejects(nil, NAME, "the checksum file is empty")
 
+-- Windows archives carry PowerShell's Get-FileHash output. This is the file of
+-- deno 2.9.8's x86_64 Windows archive, read on 2026-11-21: CRLF line ends, the
+-- digest in capitals and the path the build machine wrote.
+local WINDOWS_NAME = "deno-x86_64-pc-windows-msvc.zip"
+local WINDOWS_DIGEST = "CBA84B26E0DF5AE7F74FC66B86A95B866872A86292EBD84FA1E959927EDD93BF"
+local WINDOWS_PATH = "C:\\a\\deno\\deno\\target\\release\\" .. WINDOWS_NAME
+local WINDOWS = "\r\nAlgorithm : SHA256\r\nHash      : "
+    .. WINDOWS_DIGEST
+    .. "\r\nPath      : "
+    .. WINDOWS_PATH
+    .. "\r\n\r\n"
+gives(WINDOWS, WINDOWS_NAME, WINDOWS_DIGEST:lower())
+-- A byte order mark in front of the file changes nothing.
+gives("\239\187\191" .. WINDOWS, WINDOWS_NAME, WINDOWS_DIGEST:lower())
+-- The Path line is optional: the Hash line alone gives the digest.
+gives("Algorithm : SHA256\r\nHash      : " .. WINDOWS_DIGEST .. "\r\n", WINDOWS_NAME, WINDOWS_DIGEST:lower())
+-- The Path line names another archive, which must not be trusted.
+rejects(WINDOWS, "deno-aarch64-pc-windows-msvc.zip", "the checksum file is for " .. WINDOWS_PATH)
+-- An algorithm other than SHA-256 is refused, whatever its digest looks like.
+rejects(
+    "Algorithm : SHA512\r\nHash      : " .. string.rep("ab", 64) .. "\r\n",
+    WINDOWS_NAME,
+    "the checksum file is for SHA512, not SHA-256"
+)
+-- A Hash line that is not 64 hexadecimal digits is no SHA-256 digest.
+rejects(
+    "Algorithm : SHA256\r\nHash      : " .. string.rep("g", 64) .. "\r\n",
+    WINDOWS_NAME,
+    "the checksum file holds no SHA-256 digest"
+)
+rejects("Hash : abc\r\n", WINDOWS_NAME, "the checksum file holds no SHA-256 digest")
+
 assert(checksum.url_for("https://example.com/deno.zip") == "https://example.com/deno.zip.sha256sum")
 cases = cases + 1
 

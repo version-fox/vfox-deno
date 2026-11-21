@@ -13,7 +13,7 @@ hooks/env_keys.lua            PATH, the folder the install holds
 hooks/pre_use.lua             vfox use: nothing to map, vfox selects the install
 hooks/detect.lua              vfox link --detect: finds the Deno installs already on the machine
 lib/util.lua                  release and download addresses, and the platform names Deno uses
-lib/checksum.lua              reads the digest of a download from Deno's .sha256sum file
+lib/checksum.lua              reads the digest of a download from Deno's checksum file
 lib/detect_deno.lua           the folders to search, and how a Deno is recognised and named
 tests/*_test.lua              offline hook tests, run by vfox plugin test
 tests/e2e/                    the end-to-end suite, a Go module (see e2e.md)
@@ -37,7 +37,7 @@ vfox loads `metadata.lua`, calls a hook when a command needs it, and puts `PLUGI
 
 A few contracts that cost time to find:
 
-- `PreInstall` returns `version` and `url`, and `sha256` where the checksum file gives one. vfox compares the digest with the download, so the key has to be `sha256`, in lower case with nothing around it. `lib/checksum.lua` takes the digest out of `<digest>  <name>` and lower-cases it, and returns nothing when it is not sure of it.
+- `PreInstall` returns `version` and `url`, and `sha256` where the checksum file gives one. vfox compares the digest with the download, so the key has to be `sha256`, in lower case with nothing around it. `lib/checksum.lua` reads either form Deno publishes: sha256sum's `<digest>  <name>` (Linux and macOS), or the `Algorithm`, `Hash` and `Path` lines of PowerShell's Get-FileHash (Windows). It lower-cases the digest, and returns nothing, with the reason, when it is not sure of it.
 - Only a 404 for the checksum file lets the install go on without a digest, and it prints a note: some releases, such as Deno 1.46.3, publish no checksum file. Every other answer must give a digest for this build. A file that cannot be fetched, an error status, or a file that names no digest for the archive raises an error, so the install stops and a download is never installed unverified.
 - `version` becomes the name of the install, so it is the release number with no `v` and no build metadata. `PreInstall` accepts a leading `v`, as in `v2.7.0`.
 - Versions are matched as whole numbers: `2.1` matches `2.1.10`, `2.1.1` does not. `Available` returns the list newest first, and `latest` is its first entry.
