@@ -1,0 +1,12 @@
+{
+  "name": "vfox-deno (Linux)",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "."
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["golang.go", "sumneko.lua"]
+    }
+  }
+}
