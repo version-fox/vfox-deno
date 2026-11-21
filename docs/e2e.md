@@ -52,6 +52,8 @@ Network calls are retried, so a transient failure does not fail the run:
 - Each failed attempt's output is logged. The pause after the first failure is 10 seconds, after the second 20 seconds, and so on.
 - `E2E_RETRY_ATTEMPTS` sets the number of attempts, 3 by default. A value that is not a whole number of at least 1 fails the run, so a typo cannot turn retries off.
 
+`vfox uninstall` is retried too, for one failure only. On Windows a file that has just been read or run can stay in use by another process for a moment, such as a virus scanner, and the uninstall that removes it then fails at once. The harness tries that uninstall again every 2 seconds, up to 10 times. Any other failure is reported at once.
+
 Step 7 is an expected failure, so it is never retried.
 
 ## Running it
@@ -88,4 +90,4 @@ The [dev container](development.md#dev-container) has the same Go and vfox, and 
 
 ## Writing a step
 
-A new check goes into `tests/e2e/e2e_test.go`, in the order it has to run. Check the output the vfox command prints, with the strings it really prints, and not with a guess. Where Deno prints a value with build metadata, compare the part before the plus sign. The suite is the only part of the repository that depends on the network, so keep its requests few and retry only the ones that can fail for network reasons.
+A new check goes into `tests/e2e/e2e_test.go`, in the order it has to run. Check the output the vfox command prints, with the strings it really prints, and not with a guess. Where Deno prints a value with build metadata, compare the part before the plus sign. The suite is the only part of the repository that depends on the network, so keep its requests few and retry only the ones that can fail for a reason that passes by itself, such as a network error or a file that a scanner still holds.

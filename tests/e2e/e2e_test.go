@@ -210,7 +210,7 @@ func (h *harness) detectAndLink(t *testing.T) {
 	}
 	t.Logf("copied %s to %s", h.pinnedExec, dst)
 
-	if res := h.vfox(t, "uninstall", spec); !res.ok() {
+	if res := h.uninstallRetry(t, spec); !res.ok() {
 		t.Fatalf("vfox uninstall %s failed: %s", spec, res)
 	}
 	// Detect only finds copies that vfox does not hold, so the install must be gone.
@@ -239,7 +239,7 @@ func (h *harness) detectAndLink(t *testing.T) {
 	h.checkDenoVersion(t, spec)
 	h.denoExecIs(t, spec, dst)
 
-	if res := h.vfox(t, "uninstall", spec); !res.ok() {
+	if res := h.uninstallRetry(t, spec); !res.ok() {
 		t.Fatalf("vfox uninstall %s (the link) failed: %s", spec, res)
 	}
 	if _, err := os.Stat(dst); err != nil {
@@ -279,7 +279,7 @@ func (h *harness) cleanup(t *testing.T) {
 		return
 	}
 	for _, item := range parseList(listed.Output) {
-		if res := h.vfox(t, "uninstall", "deno@"+item.Version); !res.ok() {
+		if res := h.uninstallRetry(t, "deno@"+item.Version); !res.ok() {
 			t.Logf("cleanup: deno@%s was not uninstalled; the temporary root is removed anyway", item.Version)
 		}
 	}

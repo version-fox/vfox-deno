@@ -166,6 +166,37 @@ func TestChecksumProblem(t *testing.T) {
 	}
 }
 
+// TestFileInUse checks which failures count as a file held by another process,
+// the only failure that uninstallRetry tries again. It runs under -short.
+func TestFileInUse(t *testing.T) {
+	cases := []struct {
+		name string
+		out  string
+		want bool
+	}{
+		{
+			name: "held by another process",
+			out:  "remove C:\\vfox\\deno.exe: The process cannot access the file because it is being used by another process.\n",
+			want: true,
+		},
+		{
+			name: "access denied",
+			out:  "remove C:\\vfox\\deno.exe: Access is denied.\n",
+		},
+		{
+			name: "uninstalled",
+			out:  "Uninstalled deno@2.7.0 successfully!\n",
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := fileInUse(tc.out); got != tc.want {
+				t.Errorf("fileInUse(%q) = %v, want %v", tc.out, got, tc.want)
+			}
+		})
+	}
+}
+
 // TestInstalledVersion checks which release an install's output names, for a
 // fresh install and for one already in place. It runs under -short.
 func TestInstalledVersion(t *testing.T) {
