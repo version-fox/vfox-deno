@@ -13,7 +13,7 @@ A version is a Deno release number, such as `2.7.0`. The plugin accepts as much 
 | `2.7`                    | the newest 2.7.x release, such as `2.7.14`            |
 | `2.7.0`                  | exactly 2.7.0                                         |
 | `v2.7.0`                 | the same as `2.7.0`, with the `v` that tags carry     |
-| `2.7.1`, `9.9.9`         | an error if no release with that number exists        |
+| `2.7.99`, `9.9.9`        | an error if no release with that number exists        |
 
 A number is matched whole: `2.1` means 2.1.x, and `2.1.1` is never 2.1.10. Pre-releases such as `2.2.0-rc.1` are not in the list, so they cannot be installed by name here.
 

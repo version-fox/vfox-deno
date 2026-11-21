@@ -4,9 +4,9 @@
 
 以下记录每个发布版本的变更，按用户所能察觉到的方式描述。GitHub 的发布页面会列出拉取请求。
 
-## 未发布
+## 0.2.3 (2026-11-21)
 
-- 在 Linux 和 macOS 上，`vfox install` 解压压缩包后会为 `deno` 设置可执行位。Deno 0.36.0 的 Linux 压缩包没有设置该位，因此 `vfox exec deno@0.36.0 -- deno --version` 曾以 `permission denied` 失败；现在它会打印 `deno 0.36.0`。此变更之前完成的安装仍然没有该位，参见 [troubleshooting.md](troubleshooting.md)。
+- 在 Linux 和 macOS 上，`vfox install` 解压压缩包后会为 `deno` 设置可执行位。Deno 0.36.0 的 Linux 压缩包没有设置该位，因此 `vfox exec deno@0.36.0 -- deno --version` 曾以 `permission denied` 失败；现在它会打印 `deno 0.36.0`。0.2.3 之前完成的安装仍然没有该位，参见 [troubleshooting.md](troubleshooting.md)。
 
 ## 0.2.2 (2026-11-21)
 
