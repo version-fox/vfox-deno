@@ -4,6 +4,10 @@
 
 What changed in each release, as a user notices it. GitHub's release pages list the pull requests.
 
+## Unreleased
+
+- On Linux and macOS, `vfox install` sets the execute bit on `deno` after it unpacks the archive. Deno 0.36.0's Linux archive leaves the bit off, so `vfox exec deno@0.36.0 -- deno --version` failed with `permission denied`; it now prints `deno 0.36.0`. An install made before this change keeps the bit off, see [troubleshooting.md](troubleshooting.md).
+
 ## 0.2.2 (2026-11-21)
 
 - `vfox search deno` lists only the releases that have a download for your platform. It used to list releases with none: 71 of the 380 on Linux with x86_64, and 349 of them on Windows with arm64. `vfox install` of one of those names the reason instead of failing on the download.

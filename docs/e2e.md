@@ -41,7 +41,8 @@ Child processes run in an empty working folder inside the root. Each vfox comman
 6. **Leading v.** `vfox install deno@v2.7.0` exits 0 and names exactly 2.7.0, whether it installs the release or finds it installed.
 7. **Unknown version.** `vfox install deno@9.9.9` fails with `Could not resolve version`. The failure is the expected outcome, so this step does not retry it.
 8. **Detect and link.** The 2.7.0 binary is copied to `$DENO_INSTALL/bin`, and vfox's own copy is uninstalled. `vfox link --detect -y deno` must find and link the copy as 2.7.0, without mentioning `VFOX_HOME`. Then `vfox list deno` must show the link, `vfox exec` must run that copy, and `vfox uninstall` must remove the link only, leaving the binary in place. See [link.md](link.md).
-9. **Cleanup.** Every version that is still installed is uninstalled. This is best effort: a failure is logged, and the temporary root is removed either way.
+9. **First Linux release.** `vfox install deno@0.36.0` installs the first release with a download for Linux with x86_64, whose archive leaves `deno` without the execute bit. The first line that `vfox exec deno@0.36.0 -- deno --version` prints must be `deno 0.36.0`. The step runs only on Linux with x86_64: on Windows there is no execute bit to check, and on Linux with arm64 this release has no download.
+10. **Cleanup.** Every version that is still installed is uninstalled. This is best effort: a failure is logged, and the temporary root is removed either way.
 
 ## Retries
 
@@ -50,6 +51,8 @@ Network calls are retried, so a transient failure does not fail the run:
 - `vfox search`, `vfox install` and `vfox exec` (which installs a missing version) are retried when they exit with a non-zero code. The download of vfox itself is retried on transfer errors and on answers other than 200.
 - Each failed attempt's output is logged. The pause after the first failure is 10 seconds, after the second 20 seconds, and so on.
 - `E2E_RETRY_ATTEMPTS` sets the number of attempts, 3 by default. A value that is not a whole number of at least 1 fails the run, so a typo cannot turn retries off.
+
+`vfox uninstall` is retried too, for one failure only. On Windows a file that has just been read or run can stay in use by another process for a moment, such as a virus scanner, and the uninstall that removes it then fails at once. The harness tries that uninstall again every 2 seconds, up to 10 times. Any other failure is reported at once.
 
 Step 7 is an expected failure, so it is never retried.
 
@@ -87,4 +90,4 @@ The [dev container](development.md#dev-container) has the same Go and vfox, and 
 
 ## Writing a step
 
-A new check goes into `tests/e2e/e2e_test.go`, in the order it has to run. Check the output the vfox command prints, with the strings it really prints, and not with a guess. Where Deno prints a value with build metadata, compare the part before the plus sign. The suite is the only part of the repository that depends on the network, so keep its requests few and retry only the ones that can fail for network reasons.
+A new check goes into `tests/e2e/e2e_test.go`, in the order it has to run. Check the output the vfox command prints, with the strings it really prints, and not with a guess. Where Deno prints a value with build metadata, compare the part before the plus sign. The suite is the only part of the repository that depends on the network, so keep its requests few and retry only the ones that can fail for a reason that passes by itself, such as a network error or a file that a scanner still holds.

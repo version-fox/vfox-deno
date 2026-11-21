@@ -438,6 +438,30 @@ func (h *harness) vfoxRetry(t testing.TB, args ...string) commandResult {
 	return last
 }
 
+// The pause between two tries of uninstallRetry, and how many tries it makes.
+// Together they allow up to about 20 seconds for a file that another process holds.
+const (
+	lockPause    = 2 * time.Second
+	lockAttempts = 10
+)
+
+// uninstallRetry runs `vfox uninstall spec`, and runs it again while Windows
+// reports a file of the install as in use by another process. A file that has
+// just been read or run can stay held for a moment, for example by a virus
+// scanner, and vfox cannot remove it until the hold ends. Any other failure is
+// returned at once, as is the last failure after lockAttempts tries.
+func (h *harness) uninstallRetry(t testing.TB, spec string) commandResult {
+	t.Helper()
+	for n := 1; ; n++ {
+		res := h.vfox(t, "uninstall", spec)
+		if res.ok() || !fileInUse(res.Output) || n == lockAttempts {
+			return res
+		}
+		t.Logf("%s: a file is in use by another process; trying again in %s", spec, lockPause)
+		time.Sleep(lockPause)
+	}
+}
+
 // ansiEscape matches the CSI and OSC escape sequences vfox writes for colour
 // and progress.
 var ansiEscape = regexp.MustCompile(`\x1b\[[0-?]*[ -/]*[@-~]|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)`)
@@ -523,6 +547,12 @@ func isLinked(items []listedVersion, version string) bool {
 		}
 	}
 	return false
+}
+
+// fileInUse reports whether the output of a vfox command says that Windows could
+// not remove or open a file, because another process holds it.
+func fileInUse(out string) bool {
+	return strings.Contains(strings.ToLower(out), "being used by another process")
 }
 
 // checksumProblem says why the output of an install does not show that vfox

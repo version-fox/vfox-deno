@@ -34,6 +34,10 @@ const (
 	readmeURL   = "https://github.com/version-fox/vfox-deno/blob/main/README.md"
 )
 
+// denoFirstLinux is the first release with a download for Linux with x86_64. Its
+// archive stores deno without the execute bit, so the plugin has to set it.
+const denoFirstLinux = "0.36.0"
+
 // TestE2E installs and runs the Deno plugin with the real vfox binary. Each
 // step is a subtest, and the steps run in order against one isolated
 // environment. A failed step does not stop the later ones unless they cannot
@@ -53,7 +57,8 @@ func TestE2E(t *testing.T) {
 	t.Run("6 install accepts a leading v", h.installVPrefixed)
 	t.Run("7 install rejects an unknown version", h.installUnknown)
 	t.Run("8 detect and link a copy", h.detectAndLink)
-	t.Run("9 cleanup", h.cleanup)
+	t.Run("9 install the first Linux release and run it", h.installFirstLinux)
+	t.Run("10 cleanup", h.cleanup)
 }
 
 // setup acquires vfox, checks that it is 1.1.0 or later, packages this
@@ -205,7 +210,7 @@ func (h *harness) detectAndLink(t *testing.T) {
 	}
 	t.Logf("copied %s to %s", h.pinnedExec, dst)
 
-	if res := h.vfox(t, "uninstall", spec); !res.ok() {
+	if res := h.uninstallRetry(t, spec); !res.ok() {
 		t.Fatalf("vfox uninstall %s failed: %s", spec, res)
 	}
 	// Detect only finds copies that vfox does not hold, so the install must be gone.
@@ -234,11 +239,34 @@ func (h *harness) detectAndLink(t *testing.T) {
 	h.checkDenoVersion(t, spec)
 	h.denoExecIs(t, spec, dst)
 
-	if res := h.vfox(t, "uninstall", spec); !res.ok() {
+	if res := h.uninstallRetry(t, spec); !res.ok() {
 		t.Fatalf("vfox uninstall %s (the link) failed: %s", spec, res)
 	}
 	if _, err := os.Stat(dst); err != nil {
 		t.Errorf("vfox uninstall removed the linked binary %s: %v", dst, err)
+	}
+}
+
+// installFirstLinux installs Deno 0.36.0, the first release with a download for
+// Linux with x86_64, and runs it through vfox exec. Its archive leaves deno
+// without the execute bit, so the plugin has to set the bit after unpacking:
+// without it, exec fails with permission denied. The step runs only on Linux
+// with x86_64. On Windows there is no execute bit to check, and on Linux with
+// arm64 this release has no download.
+func (h *harness) installFirstLinux(t *testing.T) {
+	if runtime.GOOS != "linux" || runtime.GOARCH != "amd64" {
+		t.Skipf("the execute-bit check of Deno %s runs on Linux with x86_64; this host is %s/%s",
+			denoFirstLinux, runtime.GOOS, runtime.GOARCH)
+	}
+	spec := "deno@" + denoFirstLinux
+	h.vfoxRetry(t, "install", spec)
+	res := h.vfox(t, "exec", spec, "--", "deno", "--version")
+	if !res.ok() {
+		t.Fatalf("vfox exec %s failed: %s", spec, res)
+	}
+	first, _, _ := strings.Cut(strings.TrimSpace(res.Output), "\n")
+	if got, want := strings.TrimSpace(first), "deno "+denoFirstLinux; got != want {
+		t.Errorf("deno --version printed %q first, want %q", got, want)
 	}
 }
 
@@ -251,7 +279,7 @@ func (h *harness) cleanup(t *testing.T) {
 		return
 	}
 	for _, item := range parseList(listed.Output) {
-		if res := h.vfox(t, "uninstall", "deno@"+item.Version); !res.ok() {
+		if res := h.uninstallRetry(t, "deno@"+item.Version); !res.ok() {
 			t.Logf("cleanup: deno@%s was not uninstalled; the temporary root is removed anyway", item.Version)
 		}
 	}

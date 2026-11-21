@@ -56,6 +56,10 @@ GitHub has no archive for this Deno release on your platform, and the plugin did
 
 The archive that arrived is not the one Deno published, so vfox stopped the install and installed nothing. Run the command again. If it fails the same way, the download may have been altered on the way, so do not use that copy; report it.
 
+**`fork/exec <path>/deno: permission denied`**
+
+The archive of some releases, such as Deno 0.36.0 on Linux with x86_64, leaves `deno` without the execute bit. The plugin sets the bit after it unpacks an archive, so only an install made before that keeps the bit off. Reinstall the release with `vfox uninstall deno@<version>` and `vfox install deno@<version>`, or run `chmod +x <path>` on the file the message names.
+
 ## Platforms
 
 **`Deno does not support <os> os`** or **`Deno does not support <arch> architecture`**
