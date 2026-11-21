@@ -51,6 +51,7 @@ io.open = function(path)
     }
 end
 
+-- The handle has read and close only, as vfox's io.popen handle has on Windows.
 io.popen = function(command)
     local target = command:match("'(.-)'") or command:match('"(.-)"') or ""
     local output
@@ -62,9 +63,6 @@ io.popen = function(command)
     return {
         read = function()
             return output
-        end,
-        lines = function()
-            return output:gmatch("[^\r\n]+")
         end,
         close = function()
             return true

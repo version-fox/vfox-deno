@@ -160,14 +160,17 @@ local function list_children(dir)
     if handle == nil then
         return {}
     end
+    -- Only read and close are used: vfox's io.popen handle on Windows has no
+    -- lines method, so the output is read whole and split here.
+    local output = handle:read("*a") or ""
+    handle:close()
     local names = {}
-    for line in handle:lines() do
+    for line in output:gmatch("[^\r\n]+") do
         local name = trim(line)
         if name ~= "" and name ~= "." and name ~= ".." then
             table.insert(names, name)
         end
     end
-    handle:close()
     return names
 end
 
