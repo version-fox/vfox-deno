@@ -232,7 +232,7 @@ func (h *harness) detectAndLink(t *testing.T) {
 	}
 
 	h.checkDenoVersion(t, spec)
-	h.denoExecPath(t, spec, binDir)
+	h.denoExecIs(t, spec, dst)
 
 	if res := h.vfox(t, "uninstall", spec); !res.ok() {
 		t.Fatalf("vfox uninstall %s (the link) failed: %s", spec, res)
@@ -298,6 +298,36 @@ func (h *harness) denoExecPath(t *testing.T, spec, dir string) (string, bool) {
 // so the release must be followed by the end of the text or by '+'.
 func denoVersionMatches(printed, want string) bool {
 	return printed == want || strings.HasPrefix(printed, want+"+")
+}
+
+// denoExecIs runs Deno.execPath() through vfox exec for spec and checks that
+// the executable it names is the file want. It compares the two files, not the
+// paths: vfox links a folder with a junction on Windows, and filepath.EvalSymlinks
+// cannot resolve a junction, so a path that runs through the link would fail
+// the path check there.
+func (h *harness) denoExecIs(t *testing.T, spec, want string) {
+	t.Helper()
+	res := h.execDeno(t, spec, "console.log(Deno.execPath())")
+	p := strings.TrimSpace(res.Output)
+	same, err := sameFile(p, want)
+	if err != nil || !same {
+		t.Errorf("Deno.execPath() printed %q, want the file %s (%v)", p, want, err)
+	}
+}
+
+// sameFile reports whether a and b name the same file. os.Stat follows a link
+// or junction to the file it reaches, and os.SameFile compares the files
+// themselves, so a path that runs through a link matches the file it leads to.
+func sameFile(a, b string) (bool, error) {
+	ai, err := os.Stat(a)
+	if err != nil {
+		return false, err
+	}
+	bi, err := os.Stat(b)
+	if err != nil {
+		return false, err
+	}
+	return os.SameFile(ai, bi), nil
 }
 
 // denoBinaryName is the Deno executable's file name on this platform: deno.exe

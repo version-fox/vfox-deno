@@ -323,6 +323,42 @@ func TestWithinResolvesInsideAndOutside(t *testing.T) {
 	}
 }
 
+// TestSameFileFollowsLinks checks the file comparison that step 8 uses for a
+// linked install: a file names itself, a different file does not match it, and
+// a path that runs through a folder link matches the file the link leads to. The
+// link case needs the platform to allow links, and is skipped where it does not
+// (Windows without developer mode). It runs under -short.
+func TestSameFileFollowsLinks(t *testing.T) {
+	dir := t.TempDir()
+	target := filepath.Join(dir, "bin")
+	if err := os.MkdirAll(target, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	file := filepath.Join(target, "deno")
+	other := filepath.Join(dir, "other")
+	for _, p := range []string{file, other} {
+		if err := os.WriteFile(p, []byte("x"), 0o755); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if ok, err := sameFile(file, file); err != nil || !ok {
+		t.Errorf("sameFile(file, itself) = %v, %v; want true", ok, err)
+	}
+	if ok, err := sameFile(other, file); err != nil || ok {
+		t.Errorf("sameFile(other, file) = %v, %v; want false, two files with equal content are not the same file", ok, err)
+	}
+	link := filepath.Join(dir, "link")
+	if err := os.Symlink(target, link); err != nil {
+		t.Skipf("the platform does not allow folder links here: %v", err)
+	}
+	if ok, err := sameFile(filepath.Join(link, "deno"), file); err != nil || !ok {
+		t.Errorf("sameFile(through link, file) = %v, %v; want true", ok, err)
+	}
+	if _, err := sameFile(filepath.Join(link, "missing"), file); err == nil {
+		t.Errorf("sameFile of a missing file through the link = nil error; want an error")
+	}
+}
+
 // TestExtractVfoxFromBothArchiveKinds extracts a synthetic tar.gz and zip
 // archive and checks that only the binary entry is written, with the right name
 // and, on unix, execute permission. A missing entry is an error. It runs under
