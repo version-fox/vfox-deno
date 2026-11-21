@@ -22,7 +22,7 @@ vfox 会列出插件找到的 Deno，并链接你选择的那些。`vfox link --
 - Cargo：`~/.cargo/bin`
 - Homebrew 的 keg：位于 `/opt/homebrew`、`/usr/local` 和 Linuxbrew 之下的 `opt/deno/bin`
 - asdf：`~/.asdf/installs/deno` 下的每个目录
-- mise：`~/.local/share/mise/installs/deno` 下的每个目录，或 `$MISE_DATA_DIR` 下的每个目录
+- mise：`~/.local/share/mise/installs/deno` 下的每个目录；设置了 `MISE_DATA_DIR` 时，还包括 `$MISE_DATA_DIR/installs/deno` 下的每个目录
 - 仅限 Windows：Scoop 的 `current` 目录（`%SCOOP%\apps\deno\current`，或 `~\scoop\apps\deno\current`）、以 `DenoLand.Deno` 开头的 winget 包目录，以及 `%ProgramFiles%\Deno`
 - `PATH` 中每个绝对路径的目录，其中也包括 `/usr/local/bin` 和 `/usr/bin` 等系统目录
 

@@ -64,14 +64,6 @@ vfox install deno@v2.7.0       # 同上，带有标签中常见的 v 前缀
 - [开发](docs/zh-CN/development.md)：插件如何工作，如何修改、测试和发布它
 - [E2E 测试](docs/zh-CN/e2e.md)：在 Ubuntu 和 Windows 上运行的端到端测试套件
 
-## 发布本插件
-
-维护者可以在默认分支上通过 **Actions → Plugin → Run workflow** 进行发布，输入一个不带 `v` 前缀的稳定版插件版本号。共享工作流会更新 `metadata.lua`，创建版本提交和标签，并在本仓库中发布 ZIP 文件和清单。无需本地标签，也无需额外的发布令牌。拉取请求只运行检查；PR 标题不再触发发布。
-
-已有版本标签的推送受支持，前提是 `PLUGIN.version` 已与该标签匹配。如果发布失败，重新运行原先失败的任务即可继续。
-
-该工作流跟随共享发布工具的 `@v1` 版本。更新该工具本身不会发布本插件。关于包约定和首次推出时的要求，参见[共享工作流文档](https://github.com/version-fox/plugin-manifest-action)。
-
 ## 致谢
 
 - [Deno](https://deno.com/)，本插件安装的正是它的发布版本

@@ -115,6 +115,8 @@ docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.12 -color
 | E2E             | `e2e.yml`                       | 在 Ubuntu（amd64、arm64）和 Windows（amd64、arm64）上运行端到端测试套件       |
 | Plugin          | `publish.yaml`                  | 拉取请求上的共享检查，以及推送标签或手动运行时进行的发布                       |
 
+新的推送到达拉取请求时，E2E 工作流会取消同一拉取请求上较早那次推送的运行。推送到 `main` 的运行绝不会被取消，因为 `main` 上的每个提交都有各自的分组。
+
 ## 固定的工具版本
 
 每个版本都写在使用它的工作流和开发容器中。修改某个版本时，请同时改掉所有这些位置，以及本表。
@@ -123,8 +125,8 @@ docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.12 -color
 | ------------------- | ------- | ----------------------------------------------------------------------- |
 | vfox                | 1.1.0   | `test.yml`（连同其 SHA-256）、`tests/e2e/vfox.go` 和 `.devcontainer/`   |
 | Go                  | 1.27.3  | `lint.yml`、`e2e.yml` 和 `.devcontainer/Dockerfile`                     |
-| stylua              | 2.5.2   | `lint.yml` 和 `.devcontainer/install-tools.sh`                          |
-| lua-language-server | 3.19.1  | `lint.yml` 和 `.devcontainer/install-tools.sh`                          |
+| stylua              | 2.5.2   | `lint.yml`、`.devcontainer/Dockerfile` 和 `.devcontainer/install-tools.sh`                          |
+| lua-language-server | 3.19.1  | `lint.yml`、`.devcontainer/Dockerfile` 和 `.devcontainer/install-tools.sh`                          |
 | skywalking-eyes     | 0.9.0   | `license.yml` 和 `.devcontainer/install-tools.sh`                       |
 | actionlint          | 1.7.12  | `lint.yml` 和 `.devcontainer/install-tools.sh`                          |
 | 被测试的 Deno       | 2.7.0   | `tests/e2e/e2e_test.go`                                                 |
@@ -134,6 +136,8 @@ docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.12 -color
 维护者可以在默认分支上通过 **Actions → Plugin → Run workflow** 进行发布，输入一个不带 `v` 前缀的稳定版插件版本号。共享工作流 [plugin-manifest-action](https://github.com/version-fox/plugin-manifest-action) 会更新 `metadata.lua`，创建版本提交和标签，并在本仓库中发布 ZIP 文件和清单。无需本地标签，也无需额外的发布令牌。拉取请求只运行检查。
 
 推送版本标签同样会发布，前提是 `PLUGIN.version` 已与该标签匹配。如果发布失败，请重新运行失败的任务以恢复发布。
+
+该工作流跟随共享发布工具的 `@v1` 版本。更新该工具本身不会发布本插件。关于包约定和首次推出时的要求，参见[共享工作流文档](https://github.com/version-fox/plugin-manifest-action)。
 
 ### 发布之后
 

@@ -22,7 +22,7 @@ The plugin looks in these places, in this order:
 - Cargo: `~/.cargo/bin`
 - Homebrew kegs: `opt/deno/bin` under `/opt/homebrew`, `/usr/local` and Linuxbrew
 - asdf: each folder under `~/.asdf/installs/deno`
-- mise: each folder under `~/.local/share/mise/installs/deno`, or under `$MISE_DATA_DIR`
+- mise: each folder under `~/.local/share/mise/installs/deno`, and under `$MISE_DATA_DIR/installs/deno` when `MISE_DATA_DIR` is set
 - Windows only: Scoop's `current` folder (`%SCOOP%\apps\deno\current`, or `~\scoop\apps\deno\current`), the winget package folder that starts with `DenoLand.Deno`, and `%ProgramFiles%\Deno`
 - Every absolute folder on `PATH`, which also covers the system directories such as `/usr/local/bin` and `/usr/bin`
 
